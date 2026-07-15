@@ -81,20 +81,42 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 .highlight { background: #fefcbf; padding: 0 4px; border-radius: 3px; }
 .highlight-red { background: #fed7d7; color: #9b2c2c; padding: 0 4px; border-radius: 3px; }
 .schedule-page { display: flex; flex-direction: column; gap: 20px; }
+.schedule-overview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.schedule-day-card { background: var(--card-bg); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); border-left: 4px solid var(--primary-light); text-align: center; cursor: default; transition: transform 0.15s; }
+.schedule-day-card:hover { transform: translateY(-2px); }
+.schedule-day-card.day1 { border-left-color: #3182ce; }
+.schedule-day-card.day2 { border-left-color: #dd6b20; }
+.schedule-day-card.day3 { border-left-color: #38a169; }
+.schedule-day-card .day-num { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+.schedule-day-card .day-date { font-size: 18px; font-weight: 700; color: var(--primary); margin: 4px 0; }
+.schedule-day-card .day-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 .schedule-note { background: var(--card-bg); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
 .schedule-note h2 { font-size: 18px; color: var(--primary); margin-bottom: 12px; }
 .schedule-note p { font-size: 13px; color: #4a5568; line-height: 1.8; margin-bottom: 6px; }
 .schedule-table { background: var(--card-bg); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
 .schedule-table table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.schedule-table th { background: var(--primary); color: white; padding: 12px 16px; text-align: left; font-weight: 600; }
-.schedule-table td { padding: 10px 16px; border-bottom: 1px solid #edf2f7; color: #4a5568; vertical-align: top; }
+.schedule-table th { background: var(--primary); color: white; padding: 12px 16px; text-align: center; font-weight: 600; font-size: 13px; }
+.schedule-table th:first-child { text-align: center; width: 110px; }
+.schedule-table td { padding: 10px 12px; border-bottom: 1px solid #edf2f7; color: #4a5568; vertical-align: middle; text-align: center; font-size: 13px; line-height: 1.5; }
+.schedule-table td:first-child { text-align: center; font-weight: 600; color: var(--primary-light); white-space: nowrap; }
 .schedule-table tr:hover td { background: #f7fafc; }
-.schedule-table .day-header { background: #ebf4ff; font-weight: 700; color: var(--primary); }
-.schedule-table .time-col { white-space: nowrap; font-weight: 600; color: var(--primary-light); }
+.schedule-table .day-header td { background: #ebf4ff; font-weight: 700; color: var(--primary); font-size: 14px; padding: 10px 12px; text-align: center; }
+.schedule-table .event-highlight td { background: #fffbeb; }
+.schedule-table .event-highlight td:first-child { color: var(--accent); }
+.schedule-table .event-highlight td:not(:first-child) { font-weight: 700; color: var(--accent); font-size: 14px; }
+.schedule-table .time-note { display: block; font-size: 11px; color: #a0aec0; font-weight: 400; margin-top: 2px; }
+.schedule-table .empty-cell { color: #cbd5e0; }
+.schedule-legend { display: flex; gap: 16px; flex-wrap: wrap; padding: 12px 16px; background: #f7fafc; border-radius: var(--radius-sm); font-size: 12px; }
+.schedule-legend span { display: flex; align-items: center; gap: 6px; color: var(--text-muted); }
+.schedule-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.schedule-legend .dot.loop { background: #3182ce; }
+.schedule-legend .dot.swiss { background: #38a169; }
+.schedule-legend .dot.ko { background: #dd6b20; }
+.schedule-legend .dot.ladies { background: #805ad5; }
 .empty-state { text-align: center; padding: 60px 20px; color: #a0aec0; }
 .empty-state .big-icon { font-size: 48px; margin-bottom: 16px; }
 .empty-state p { font-size: 15px; }
-@media (max-width: 900px) { .nav-tabs { padding: 0 12px; } .rules-grid { grid-template-columns: 1fr; } .detail-grid { grid-template-columns: 1fr; } .search-row { flex-wrap: wrap; } .filter-row { flex-direction: column; align-items: flex-start; } .stats-bar { grid-template-columns: repeat(2, 1fr); } .header-top { flex-direction: column; align-items: flex-start; gap: 8px; } .schedule-table { overflow-x: auto; } .schedule-table table { min-width: 700px; } }
+@media (max-width: 900px) { .nav-tabs { padding: 0 12px; } .rules-grid { grid-template-columns: 1fr; } .detail-grid { grid-template-columns: 1fr; } .search-row { flex-wrap: wrap; } .filter-row { flex-direction: column; align-items: flex-start; } .stats-bar { grid-template-columns: repeat(2, 1fr); } .header-top { flex-direction: column; align-items: flex-start; gap: 8px; } .schedule-overview { grid-template-columns: 1fr; } .schedule-table { overflow-x: auto; } .schedule-table table { min-width: 680px; } .schedule-legend { gap: 10px; } }
 @media (max-width: 600px) { .tab-content { padding: 12px; } .card-header-left { flex-direction: column; align-items: flex-start; gap: 6px; } }
 </style>
 </head>
@@ -276,37 +298,142 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
 
 <div id="tab-schedule" class="tab-content">
   <div class="schedule-page">
-    <div class="schedule-note">
-      <h2>赛程安排</h2>
-      <p><strong>7月17日（周四）</strong> &#8212; 开幕式 + 循环赛/积分编排赛</p>
-      <p><strong>7月18日（周五）</strong> &#8212; 循环赛/挑战积分赛/淘汰赛</p>
-      <p><strong>7月19日（周六）</strong> &#8212; 淘汰赛/循环赛 + 11:40 颁奖</p>
+    <div class="schedule-overview">
+      <div class="schedule-day-card day1">
+        <div class="day-num">DAY 1</div>
+        <div class="day-date">7月17日（周四）</div>
+        <div class="day-desc">开幕式 · 循环赛<br>积分编排赛</div>
+      </div>
+      <div class="schedule-day-card day2">
+        <div class="day-num">DAY 2</div>
+        <div class="day-date">7月18日（周五）</div>
+        <div class="day-desc">循环赛 · 挑战积分赛<br>淘汰赛</div>
+      </div>
+      <div class="schedule-day-card day3">
+        <div class="day-num">DAY 3</div>
+        <div class="day-date">7月19日（周六）</div>
+        <div class="day-desc">决赛 · 颁奖</div>
+      </div>
     </div>
+
+    <div class="schedule-legend">
+      <span><span class="dot loop"></span> 循环赛</span>
+      <span><span class="dot swiss"></span> 积分编排</span>
+      <span><span class="dot ko"></span> 淘汰/挑战赛</span>
+      <span><span class="dot ladies"></span> 女子组循环</span>
+    </div>
+
     <div class="schedule-table">
       <table>
         <thead>
-          <tr><th>时间</th><th>U14公开</th><th>U11公开 / U9公开 / U9迷你 / U9赢墩</th><th>U11女子 / U14女子 / U7赢墩</th><th>U11迷你</th></tr>
+          <tr>
+            <th>时间</th>
+            <th>U14公开</th>
+            <th>U11公开 / U9公开<br>U9迷你 / U9赢墩</th>
+            <th>U11女子 / U14女子<br>U7赢墩</th>
+          </tr>
         </thead>
         <tbody>
-          <tr class="day-header"><td colspan="5">7月17日（周四）&#8212; 开幕式</td></tr>
-          <tr><td class="time-col">8:30-9:00</td><td colspan="4" style="text-align:center;font-weight:700;color:var(--primary);">&#127881; 开幕式</td></tr>
-          <tr><td class="time-col">9:00-10:10</td><td>循环第一轮</td><td>积分编排一轮</td><td>第一循环第一轮</td><td>循环第一轮</td></tr>
-          <tr><td class="time-col">10:20-11:30</td><td>/</td><td>积分编排二轮</td><td>第一循环第二轮</td><td>循环第二轮</td></tr>
-          <tr><td class="time-col">12:30-13:40</td><td>循环第二轮</td><td>积分编排三轮</td><td>第一循环第三轮</td><td>循环第三轮</td></tr>
-          <tr><td class="time-col">13:50-15:00</td><td>循环第三轮</td><td>积分编排四轮</td><td>第一循环第四轮</td><td>循环第四轮</td></tr>
-          <tr><td class="time-col">15:10-16:20</td><td>循环第四轮</td><td>积分编排五轮</td><td>第一循环第五轮</td><td>循环第五轮</td></tr>
-          <tr><td class="time-col">16:30-17:40</td><td>/</td><td>积分编排六轮</td><td>第一循环第六轮</td><td>循环第六轮</td></tr>
-          <tr class="day-header"><td colspan="5">7月18日（周五）</td></tr>
-          <tr><td class="time-col">9:00-10:10</td><td>循环第五轮</td><td>积分编排七轮</td><td>第一循环第七轮</td><td>循环第七轮</td></tr>
-          <tr><td class="time-col">10:20-11:30</td><td>/</td><td>积分编排八轮</td><td>第二循环第一轮</td><td>循环第八轮</td></tr>
-          <tr><td class="time-col">12:30-13:40</td><td>循环第六轮</td><td>挑战积分赛第一轮<br>淘汰第一轮第一节</td><td>第二循环第二轮</td><td>循环第九轮</td></tr>
-          <tr><td class="time-col">13:50-15:00</td><td>循环第七轮</td><td>挑战积分赛第二轮<br>淘汰第一轮第二节</td><td>第二循环第三轮</td><td>循环第十轮</td></tr>
-          <tr><td class="time-col">15:10-16:20</td><td>循环第八轮</td><td>挑战积分赛第三轮<br>淘汰第二轮第一节</td><td>第二循环第四轮</td><td>循环第十一轮</td></tr>
-          <tr><td class="time-col">16:30-17:40</td><td>/</td><td>挑战积分赛第四轮<br>淘汰第二轮第二节</td><td>第二循环第五轮</td><td>/</td></tr>
-          <tr class="day-header"><td colspan="5">7月19日（周六）</td></tr>
-          <tr><td class="time-col">8:30-9:40</td><td>循环第九轮</td><td>挑战积分赛第五轮<br>淘汰第三轮第一节</td><td>第二循环第六轮</td><td>淘汰赛第一节</td></tr>
-          <tr><td class="time-col">9:50-11:00</td><td>/</td><td>挑战积分赛第六轮<br>淘汰第三轮第二节</td><td>第二循环第七轮</td><td>淘汰赛第二节</td></tr>
-          <tr><td class="time-col">11:40</td><td colspan="4" style="text-align:center;font-weight:700;color:var(--accent);">&#127942; 颁奖</td></tr>
+          <!-- ===== 7月17日 ===== -->
+          <tr class="day-header"><td colspan="4">7月17日（周四）—— 开幕式</td></tr>
+          <tr class="event-highlight">
+            <td>8:30 - 9:00</td>
+            <td colspan="3">开幕式</td>
+          </tr>
+          <tr>
+            <td>9:00 - 10:10</td>
+            <td>循环第一轮<span class="time-note">9:00-10:40</span></td>
+            <td>积分编排 第一轮</td>
+            <td>第一循环 第一轮</td>
+          </tr>
+          <tr>
+            <td>10:20 - 11:30</td>
+            <td class="empty-cell">—</td>
+            <td>积分编排 第二轮</td>
+            <td>第一循环 第二轮</td>
+          </tr>
+          <tr>
+            <td>12:30 - 13:40</td>
+            <td>循环第二轮<span class="time-note">12:30-14:10</span></td>
+            <td>积分编排 第三轮</td>
+            <td>第一循环 第三轮</td>
+          </tr>
+          <tr>
+            <td>13:50 - 15:00</td>
+            <td>循环第三轮<span class="time-note">14:20-16:00</span></td>
+            <td>积分编排 第四轮</td>
+            <td>第一循环 第四轮</td>
+          </tr>
+          <tr>
+            <td>15:10 - 16:20</td>
+            <td>循环第四轮<span class="time-note">16:10-17:50</span></td>
+            <td>积分编排 第五轮</td>
+            <td>第一循环 第五轮</td>
+          </tr>
+          <tr>
+            <td>16:30 - 17:40</td>
+            <td class="empty-cell">—</td>
+            <td>积分编排 第六轮</td>
+            <td>第一循环 第六轮</td>
+          </tr>
+
+          <!-- ===== 7月18日 ===== -->
+          <tr class="day-header"><td colspan="4">7月18日（周五）</td></tr>
+          <tr>
+            <td>9:00 - 10:10</td>
+            <td>循环第五轮<span class="time-note">9:00-10:40</span></td>
+            <td>积分编排 第七轮</td>
+            <td>第一循环 第七轮</td>
+          </tr>
+          <tr>
+            <td>10:20 - 11:30</td>
+            <td class="empty-cell">—</td>
+            <td>积分编排 第八轮</td>
+            <td>第二循环 第一轮</td>
+          </tr>
+          <tr>
+            <td>12:30 - 13:40</td>
+            <td>循环第六轮<span class="time-note">12:30-14:10</span></td>
+            <td>挑战积分赛 第一轮<br>淘汰 第一轮 第一节</td>
+            <td>第二循环 第二轮</td>
+          </tr>
+          <tr>
+            <td>13:50 - 15:00</td>
+            <td>循环第七轮<span class="time-note">14:20-16:00</span></td>
+            <td>挑战积分赛 第二轮<br>淘汰 第一轮 第二节</td>
+            <td>第二循环 第三轮</td>
+          </tr>
+          <tr>
+            <td>15:10 - 16:20</td>
+            <td>循环第八轮<span class="time-note">16:10-17:50</span></td>
+            <td>挑战积分赛 第三轮<br>淘汰 第二轮 第一节</td>
+            <td>第二循环 第四轮</td>
+          </tr>
+          <tr>
+            <td>16:30 - 17:40</td>
+            <td class="empty-cell">—</td>
+            <td>挑战积分赛 第四轮<br>淘汰 第二轮 第二节</td>
+            <td>第二循环 第五轮</td>
+          </tr>
+
+          <!-- ===== 7月19日 ===== -->
+          <tr class="day-header"><td colspan="4">7月19日（周六）</td></tr>
+          <tr>
+            <td>8:30 - 9:40</td>
+            <td>循环第九轮<span class="time-note">8:30-10:10</span></td>
+            <td>挑战积分赛 第五轮<br>淘汰 第三轮 第一节</td>
+            <td>第二循环 第六轮</td>
+          </tr>
+          <tr>
+            <td>9:50 - 11:00</td>
+            <td class="empty-cell">—</td>
+            <td>挑战积分赛 第六轮<br>淘汰 第三轮 第二节</td>
+            <td>第二循环 第七轮</td>
+          </tr>
+          <tr class="event-highlight">
+            <td>11:40</td>
+            <td colspan="3">颁奖</td>
+          </tr>
         </tbody>
       </table>
     </div>
