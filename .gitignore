@@ -1,0 +1,6 @@
+# 私钥/密钥文件
+*.pem
+*.key
+*.p12
+*.pfx
+c_key.pem
