@@ -235,7 +235,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC"
       <div class="search-row">
         <input type="text" id="mealSearchInput" class="search-input" placeholder="输入运动员姓名、队名或组别搜索...">
         <button class="search-btn" onclick="renderMealList()">搜索</button>
-        <button class="clear-btn" onclick="document.getElementById('mealSearchInput').value='';renderMealList()">清空</button>
+        <button class="clear-btn" onclick="document.getElementById('mealSearchInput').value='';document.getElementById('mealTeamFilter').value='';renderMealList()">清空</button>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">队伍：</span>
+        <select class="filter-select" id="mealTeamFilter" onchange="renderMealList()">
+          <option value="">全部队伍</option>
+        </select>
       </div>
     </div>
     <div class="meal-table-wrap">
@@ -759,6 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
   doSearch();
   initTabs();
   renderBusList();
+  populateMealTeams();
   renderMealList();
 });
 
@@ -838,12 +845,18 @@ function renderMealList() {
 
   // search filter
   var q = (document.getElementById('mealSearchInput').value || '').trim().toLowerCase();
+  var teamFilter = document.getElementById('mealTeamFilter').value;
   var list = MEAL_DATA.students;
   if (q) {
     list = list.filter(function(s) {
       return (s.name && s.name.toLowerCase().indexOf(q) !== -1) ||
              (s.group && s.group.toLowerCase().indexOf(q) !== -1) ||
              (s.teams && s.teams.join(' ').toLowerCase().indexOf(q) !== -1);
+    });
+  }
+  if (teamFilter) {
+    list = list.filter(function(s) {
+      return (s.teams || []).indexOf(teamFilter) !== -1;
     });
   }
 
@@ -873,6 +886,22 @@ function renderMealList() {
     '</tr>';
   });
   body.innerHTML = html;
+}
+
+function populateMealTeams() {
+  if (!MEAL_DATA || !MEAL_DATA.students) return;
+  var teamMap = {};
+  MEAL_DATA.students.forEach(function(s) {
+    (s.teams || []).forEach(function(t) { if (t) teamMap[t] = 1; });
+  });
+  var teams = Object.keys(teamMap).sort();
+  var sel = document.getElementById('mealTeamFilter');
+  if (!sel) return;
+  var html = '<option value="">全部队伍</option>';
+  teams.forEach(function(t) {
+    html += '<option value="' + t + '">' + t + '</option>';
+  });
+  sel.innerHTML = html;
 }
 
 function renderStats() {
